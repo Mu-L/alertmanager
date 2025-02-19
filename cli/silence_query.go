@@ -25,7 +25,7 @@ import (
 	"github.com/prometheus/alertmanager/api/v2/client/silence"
 	"github.com/prometheus/alertmanager/api/v2/models"
 	"github.com/prometheus/alertmanager/cli/format"
-	"github.com/prometheus/alertmanager/matchers/compat"
+	"github.com/prometheus/alertmanager/matcher/compat"
 )
 
 type silenceQueryCmd struct {
@@ -99,7 +99,7 @@ func (c *silenceQueryCmd) query(ctx context.Context, _ *kingpin.ParseContext) er
 		// If the parser fails then we likely don't have a (=|=~|!=|!~) so lets
 		// assume that the user wants alertname=<arg> and prepend `alertname=`
 		// to the front.
-		_, err := compat.Matcher(c.matchers[0])
+		_, err := compat.Matcher(c.matchers[0], "cli")
 		if err != nil {
 			c.matchers[0] = fmt.Sprintf("alertname=%s", strconv.Quote(c.matchers[0]))
 		}
@@ -154,7 +154,7 @@ func (c *silenceQueryCmd) query(ctx context.Context, _ *kingpin.ParseContext) er
 			return errors.New("unknown output formatter")
 		}
 		if err := formatter.FormatSilences(displaySilences); err != nil {
-			return fmt.Errorf("error formatting silences: %v", err)
+			return fmt.Errorf("error formatting silences: %w", err)
 		}
 	}
 	return nil
